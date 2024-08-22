@@ -12,32 +12,41 @@ const LoginPage = () => {
 
     const onFinish = async (values) => {
         const { email, password } = values;
-
-        const res = await loginApi(email, password);
-
-        if (res && res.EC === 0) {
-            localStorage.setItem("access_token", res.access_token)
-            notification.success({
-                message: "LOGIN USER",
-                description: "Success"
-            });
-            setAuth({
-                isAuthenticated: true,
-                user: {
-                    email: res?.user?.email ?? "",
-                    name: res?.user?.name ?? ""
-                }
-            })
-            navigate("/");
-
-        } else {
+        
+        try {
+            const res = await loginApi(email, password);
+            
+            if (res && res.EC === 0) {
+                localStorage.setItem("access_token", res.access_token);
+                setAuth({
+                    isAuthenticated: true,
+                    user: {
+                        email: res?.user?.email ?? "",
+                        name: res?.user?.name ?? "",
+                        role: res?.user?.role ?? ""
+                    }
+                });
+                notification.success({
+                    message: "LOGIN USER",
+                    description: "Success",
+                });
+                navigate("/");
+            } else {
+                notification.error({
+                    message: "LOGIN USER",
+                    description: res?.EM ?? "Error"
+                });
+            }
+        } catch (error) {
+            console.error("Login error:", error);
             notification.error({
                 message: "LOGIN USER",
-                description: res?.EM ?? "error"
-            })
+                description: "An unexpected error occurred.",
+            });
         }
-
     };
+    
+    
 
     return (
         <Row justify={"center"} style={{ marginTop: "30px" }}>
